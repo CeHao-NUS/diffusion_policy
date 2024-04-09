@@ -1,3 +1,6 @@
+*.yaml
+
+
 bin
 logs
 wandb
