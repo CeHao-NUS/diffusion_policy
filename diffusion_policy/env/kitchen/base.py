@@ -30,6 +30,15 @@ OBS_ELEMENT_GOALS = {
 BONUS_THRESH = 0.3
 logger = logging.getLogger()
 
+STORE = {
+            'obs': [],
+            'action': [],
+            'reward': [],
+            'done': [],
+            'info': [],
+            'counter': []
+        }
+
 
 class KitchenBase(KitchenTaskRelaxV1):
     # A string of element names. The robot's task is then to modify each of
@@ -60,6 +69,7 @@ class KitchenBase(KitchenTaskRelaxV1):
         self.goal_masking = True
         super(KitchenBase, self).__init__(use_abs_action=use_abs_action, **kwargs)
 
+
     def set_goal_masking(self, goal_masking=True):
         """Sets goal masking for goal-conditioned approaches (like RPL)."""
         self.goal_masking = goal_masking
@@ -83,6 +93,7 @@ class KitchenBase(KitchenTaskRelaxV1):
 
     def _get_reward_n_score(self, obs_dict):
         reward_dict, score = super(KitchenBase, self)._get_reward_n_score(obs_dict)
+
         reward = 0.0
         next_q_obs = obs_dict["qp"]
         next_obj_obs = obs_dict["obj_qp"]
@@ -117,6 +128,24 @@ class KitchenBase(KitchenTaskRelaxV1):
 
     def step(self, a, b=None):
         obs, reward, done, env_info = super(KitchenBase, self).step(a, b=b)
+
+        # ======== store data =========
+        STORE['obs'].append(obs)
+        STORE['action'].append(a)
+        STORE['reward'].append(reward)
+        STORE['done'].append(done)
+        STORE['info'].append(env_info)
+        count = int(env_info['time'] / 0.08)
+        STORE['counter'].append(count)
+
+        if done or reward>0:
+            # STORE['obs'] = np.array(STORE['obs'])
+            # STORE['action'] = np.array(STORE['action'])
+            # STORE['reward'] = np.array(STORE['reward'])
+            # STORE['done'] = np.array(STORE['done'])
+            # STORE['info'] = np.array(STORE['info'])
+            np.save('store.npy', STORE)
+
         if self.TERMINATE_ON_TASK_COMPLETE:
             done = not self.tasks_to_complete
         if self.TERMINATE_ON_WRONG_COMPLETE:

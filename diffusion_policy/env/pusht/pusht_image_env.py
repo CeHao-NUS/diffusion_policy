@@ -56,11 +56,37 @@ class PushTImageEnv(PushTEnv):
         self.render_cache = img
 
         return obs
+    
+    def _get_video_render(self):
+        img = super()._render_frame(mode='rgb_array')
+
+        # draw action
+        if self.latest_action is not None:
+            action = np.array(self.latest_action)
+            coord = (action / 512 * self.render_size).astype(np.int32)
+            marker_size = int(8/96*self.render_size)
+            thickness = int(1/96*self.render_size)
+            cv2.drawMarker(img, coord,
+                color=(255,0,0), markerType=cv2.MARKER_CROSS,
+                markerSize=marker_size, thickness=thickness)
+        
+        return img
 
     def render(self, mode):
         assert mode == 'rgb_array'
-
-        if self.render_cache is None:
-            self._get_obs()
         
-        return self.render_cache
+        # self.render_cache = None
+
+        # if self.render_cache is None:
+        #     original_render_size = self.render_size
+        #     self.render_size = 512
+        #     self._get_obs()
+        #     self.render_size = original_render_size
+        
+        # return self.render_cache
+        original_render_size = self.render_size
+        self.render_size = 512
+        img = self._get_video_render()
+        self.render_size = original_render_size
+
+        return img

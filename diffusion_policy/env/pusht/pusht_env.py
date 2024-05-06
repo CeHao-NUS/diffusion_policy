@@ -101,9 +101,26 @@ class PushTEnv(gym.Env):
                 rs.randint(100, 400), rs.randint(100, 400),
                 rs.randn() * 2 * np.pi - np.pi
                 ])
-        self._set_state(state)
+            
+        # '''
+        self.legacy = False
+        p_bias = 50
+        b_bias = 40
+        state = np.array([256+p_bias, 256-p_bias, 256-b_bias, 256+b_bias, np.pi/4])
+
+        # state[0] += 100
+        # state[1] += 100
+        # print('init state:', state)
+        # print('goal pose:', self.goal_pose)
+        # '''
+
+        self._set_state(state)       
 
         observation = self._get_obs()
+
+        # info = self._get_info()
+        # print('info:', info)
+
         return observation
 
     def step(self, action):

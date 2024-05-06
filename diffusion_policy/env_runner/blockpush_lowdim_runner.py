@@ -40,11 +40,22 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
         ):
         super().__init__(output_dir)
 
+        # manual start
+        n_train_vis = 100
+        n_test_vis = 100
+
+        n_train = 50
+        n_test = 0
+        train_start_seed = 4
+
+
         if n_envs is None:
             n_envs = n_train + n_test
 
         task_fps = 10
         steps_per_render = max(10 // fps, 1)
+
+        max_steps = 100 # adjust
 
         def env_fn():
             return MultiStepWrapper(
@@ -90,7 +101,8 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
                 env.env.file_path = None
                 if enable_render:
                     filename = pathlib.Path(output_dir).joinpath(
-                        'media', wv.util.generate_id() + ".mp4")
+                        # 'media1', wv.util.generate_id() + ".mp4")
+                        'media1', str(i) + ".mp4")
                     filename.parent.mkdir(parents=False, exist_ok=True)
                     filename = str(filename)
                     env.env.file_path = filename
@@ -116,7 +128,8 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
                 env.env.file_path = None
                 if enable_render:
                     filename = pathlib.Path(output_dir).joinpath(
-                        'media', wv.util.generate_id() + ".mp4")
+                        # 'media2', wv.util.generate_id() + ".mp4")
+                        'media2', str(i) + ".mp4")
                     filename.parent.mkdir(parents=False, exist_ok=True)
                     filename = str(filename)
                     env.env.file_path = filename
@@ -187,6 +200,9 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
             pbar = tqdm.tqdm(total=self.max_steps, desc=f"Eval BlockPushLowdimRunner {chunk_idx+1}/{n_chunks}", 
                 leave=False, mininterval=self.tqdm_interval_sec)
             done = False
+
+            store = {'obs':[], 'action_pred':[], 'action':[]}
+
             while not done:
                 # create obs dict
                 if not self.obs_eef_target:
@@ -213,6 +229,11 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
 
                 action = np_action_dict['action']
 
+                # ======= store, to numpy =========
+                store['obs'].append(obs_dict['obs'].detach().to('cpu').numpy())
+                store['action_pred'].append(action_dict['action_pred'].detach().to('cpu').numpy())
+                store['action'].append(action)
+
                 # step env
                 obs, reward, done, info = env.step(action)
                 done = np.all(done)
@@ -221,6 +242,13 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
                 # update pbar
                 pbar.update(action.shape[1])
             pbar.close()
+
+            # ================= save all store
+            store['obs'] = np.array(store['obs'])
+            store['action'] = np.array(store['action'])
+            store['action_pred'] = np.array(store['action_pred'])
+            # np.save('store.npy', store)
+
 
             # collect data for this round
             all_video_paths[this_global_slice] = env.render()[this_local_slice]

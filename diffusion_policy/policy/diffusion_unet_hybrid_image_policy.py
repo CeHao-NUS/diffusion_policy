@@ -18,6 +18,8 @@ import robomimic.models.base_nets as rmbn
 import diffusion_policy.model.vision.crop_randomizer as dmvc
 from diffusion_policy.common.pytorch_util import dict_apply, replace_submodules
 
+from diffusion_policy.policy.inpainting.pusht_inpainting import PushtInpaint
+
 
 class DiffusionUnetHybridImagePolicy(BaseImagePolicy):
     def __init__(self, 
@@ -164,6 +166,8 @@ class DiffusionUnetHybridImagePolicy(BaseImagePolicy):
         self.obs_as_global_cond = obs_as_global_cond
         self.kwargs = kwargs
 
+        self.inpainting = PushtInpaint()
+
         if num_inference_steps is None:
             num_inference_steps = noise_scheduler.config.num_train_timesteps
         self.num_inference_steps = num_inference_steps
@@ -205,6 +209,14 @@ class DiffusionUnetHybridImagePolicy(BaseImagePolicy):
                 generator=generator,
                 **kwargs
                 ).prev_sample
+            
+            # '''
+            # if t > scheduler.timesteps[-1]:
+            if True:
+                # print(t)
+                trajectory = self.inpainting.inpaint(trajectory)
+            # print('traj inpainted \n', trajectory[0,:,0])
+            # '''
         
         # finally make sure conditioning is enforced
         trajectory[condition_mask] = condition_data[condition_mask]        
@@ -253,6 +265,16 @@ class DiffusionUnetHybridImagePolicy(BaseImagePolicy):
             cond_mask = torch.zeros_like(cond_data, dtype=torch.bool)
             cond_data[:,:To,Da:] = nobs_features
             cond_mask[:,:To,Da:] = True
+
+        # '''
+        # ======================= create inpatining mask
+        # 1. get ori mask and cond, update stage
+        inpainting_mask, inpainting_cond = self.inpainting.create_mask_and_data(cond_data, update_state=True)
+        
+        # 2. get normalized mask and cond
+        inpainting_cond_normalized = self.normalizer['action'].normalize(inpainting_cond)
+        self.inpainting.set_mask_cond(inpainting_mask, inpainting_cond_normalized.detach().cpu().numpy())
+        # '''
 
         # run sampling
         nsample = self.conditional_sample(

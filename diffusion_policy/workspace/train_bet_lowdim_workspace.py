@@ -39,8 +39,8 @@ OmegaConf.register_new_resolver("eval", eval, replace=True)
 class TrainBETLowdimWorkspace(BaseWorkspace):
     include_keys = ['global_step', 'epoch']
 
-    def __init__(self, cfg: OmegaConf, output_dir=None):
-        super().__init__(cfg, output_dir=output_dir)
+    def __init__(self, cfg: OmegaConf):
+        super().__init__(cfg)
 
         # set seed
         seed = cfg.training.seed

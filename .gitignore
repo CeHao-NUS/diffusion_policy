@@ -1,5 +1,6 @@
 *.yaml
-
+*.npy
+*.ipynb
 
 bin
 logs

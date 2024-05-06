@@ -46,6 +46,16 @@ class KitchenLowdimRunner(BaseLowdimRunner):
         ):
         super().__init__(output_dir)
 
+
+        # manual start
+        n_train_vis = 100
+        n_test_vis = 100
+
+        n_train = 1
+        n_test = 0
+        train_start_seed = 100
+        # max_steps = 150
+
         if n_envs is None:
             n_envs = n_train + n_test
 
@@ -108,7 +118,8 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                 env.env.file_path = None
                 if enable_render:
                     filename = pathlib.Path(output_dir).joinpath(
-                        'media', wv.util.generate_id() + ".mp4")
+                        # 'media', wv.util.generate_id() + ".mp4")
+                        'media', str(i) + ".mp4")
                     filename.parent.mkdir(parents=False, exist_ok=True)
                     filename = str(filename)
                     env.env.file_path = filename
@@ -233,6 +244,8 @@ class KitchenLowdimRunner(BaseLowdimRunner):
             pbar = tqdm.tqdm(total=self.max_steps, desc=f"Eval BlockPushLowdimRunner {chunk_idx+1}/{n_chunks}", 
                 leave=False, mininterval=self.tqdm_interval_sec)
             done = False
+
+
             while not done:
                 # create obs dict
                 np_obs_dict = {
@@ -257,14 +270,34 @@ class KitchenLowdimRunner(BaseLowdimRunner):
 
                 action = np_action_dict['action']
 
+                # ======= store, to numpy =========
+                # if skip_first:
+                #     skip_first = False
+                # else:
+                #     store['obs'].append(obs_dict['obs'].detach().to('cpu').numpy())
+                #     store['action_pred'].append(action_dict['action_pred'].detach().to('cpu').numpy())
+                #     store['action'].append(action)
+                #     store['info'].append(info)
+                
+
                 # step env
                 obs, reward, done, info = env.step(action)
                 done = np.all(done)
                 past_action = action
 
+                # update the inpainting
+                policy.inpainting.update_task_finish(info[0])
+
                 # update pbar
                 pbar.update(action.shape[1])
             pbar.close()
+
+            # ================= save all store
+            # store['obs'] = np.array(store['obs'])
+            # store['action'] = np.array(store['action'])
+            # store['action_pred'] = np.array(store['action_pred'])
+            # store['info'] = np.array(store['info'])
+            # np.save('store.npy', store)
 
             # collect data for this round
             all_video_paths[this_global_slice] = env.render()[this_local_slice]

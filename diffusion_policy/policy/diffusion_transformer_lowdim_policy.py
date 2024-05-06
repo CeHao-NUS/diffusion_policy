@@ -10,6 +10,10 @@ from diffusion_policy.policy.base_lowdim_policy import BaseLowdimPolicy
 from diffusion_policy.model.diffusion.transformer_for_diffusion import TransformerForDiffusion
 from diffusion_policy.model.diffusion.mask_generator import LowdimMaskGenerator
 
+from diffusion_policy.policy.inpainting.block_push_inpaint import BlockPushInpainting
+from diffusion_policy.policy.inpainting.kitchen_inpaint import  KitchenInpaint
+from diffusion_policy.policy.inpainting.pusht_inpainting import PushtInpaint
+
 class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
     def __init__(self, 
             model: TransformerForDiffusion,
@@ -47,6 +51,11 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
         self.pred_action_steps_only = pred_action_steps_only
         self.kwargs = kwargs
 
+        # new inpainting
+        # self.inpainting = BlockPushInpainting()
+        # self.inpainting = KitchenInpaint()
+        self.inpainting = PushtInpaint()
+
         if num_inference_steps is None:
             num_inference_steps = noise_scheduler.config.num_train_timesteps
         self.num_inference_steps = num_inference_steps
@@ -83,6 +92,21 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
                 generator=generator,
                 **kwargs
                 ).prev_sample
+            
+            '''
+            # 4. ==================== apply inpainting, skip the last step
+            # print("========== inpainting {}==========".format(t))
+            # print('cond \n', self.inpainting.cond[0,:,0])
+            # print('traj \n', trajectory[0,:,0])
+            # if t == scheduler.timesteps[-2]:
+            #     a = 1
+
+            # if t > scheduler.timesteps[-1]:
+            if True:
+                # print(t)
+                trajectory = self.inpainting.inpaint(trajectory)
+            # print('traj inpainted \n', trajectory[0,:,0])
+            '''
         
         # finally make sure conditioning is enforced
         trajectory[condition_mask] = condition_data[condition_mask]        
@@ -109,6 +133,7 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
         device = self.device
         dtype = self.dtype
 
+
         # handle different ways of passing observation
         cond = None
         cond_data = None
@@ -128,6 +153,17 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
             cond_data[:,:To,Da:] = nobs[:,:To]
             cond_mask[:,:To,Da:] = True
 
+        '''
+        # ======================= create inpatining mask
+        # 1. get ori mask and cond, update stage
+        inpainting_mask, inpainting_cond = self.inpainting.create_mask_and_data(cond_data, obs_dict['obs'], update_state=True)
+        
+        # 2. get normalized mask and cond
+        inpainting_cond_normalized = self.normalizer['action'].normalize(inpainting_cond)
+        self.inpainting.set_mask_cond(inpainting_mask, inpainting_cond_normalized.detach().cpu().numpy())
+        '''
+
+        
         # run sampling
         nsample = self.conditional_sample(
             cond_data, 
@@ -138,6 +174,30 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
         # unnormalize prediction
         naction_pred = nsample[...,:Da]
         action_pred = self.normalizer['action'].unnormalize(naction_pred)
+        
+        '''
+        print('========== inpainting ==========')
+        print('obs \n', nobs[0,-1,0])
+        print('cond \n', self.inpainting.cond[0,:,0])
+        print('traj \n', naction_pred[0,:,0])
+        '''
+
+        '''
+        # ========= show inpainting results ============
+        # print('========== normalized ==========')
+        # print('cond')
+        # print(self.inpainting.cond)
+        # print('traj')
+        # print(naction_pred)
+
+        # print('========== unnormalized ==========')
+        # print('cond')
+        # print(inpainting_cond)
+        # print('traj')
+        # print(action_pred)
+        print(action_pred[0,-1,:])
+        action_pred[0,-1,:]
+        '''
 
         # get action
         if self.pred_action_steps_only:
