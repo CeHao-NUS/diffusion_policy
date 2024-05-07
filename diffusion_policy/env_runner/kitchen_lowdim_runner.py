@@ -56,6 +56,8 @@ class KitchenLowdimRunner(BaseLowdimRunner):
         train_start_seed = 100
         # max_steps = 150
 
+        render_hw = (240*4, 360*4)
+
         if n_envs is None:
             n_envs = n_train + n_test
 

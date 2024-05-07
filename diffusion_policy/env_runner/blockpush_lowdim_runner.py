@@ -44,9 +44,9 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
         n_train_vis = 100
         n_test_vis = 100
 
-        n_train = 50
+        n_train = 1
         n_test = 0
-        train_start_seed = 4
+        # train_start_seed = 4
 
 
         if n_envs is None:
@@ -55,7 +55,7 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
         task_fps = 10
         steps_per_render = max(10 // fps, 1)
 
-        max_steps = 100 # adjust
+        # max_steps = 100 # adjust
 
         def env_fn():
             return MultiStepWrapper(

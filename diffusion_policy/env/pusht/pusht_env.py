@@ -154,8 +154,38 @@ class PushTEnv(gym.Env):
 
         return observation, reward, done, info
 
+    # def render(self, mode):
+    #     return self._render_frame(mode)
+
     def render(self, mode):
-        return self._render_frame(mode)
+        assert mode == 'rgb_array'
+        
+        # return self.render_cache
+        original_render_size = self.render_size
+        original_render_action = self.render_action
+        self.render_size = 512
+        original_render_action = False
+        img = self._get_video_render()
+        self.render_size = original_render_size
+        self.render_action = original_render_action
+
+        return img
+
+    
+    def _get_video_render(self):
+        img = self._render_frame(mode='rgb_array')
+
+        # draw action
+        if self.latest_action is not None:
+            action = np.array(self.latest_action)
+            coord = (action / 512 * self.render_size).astype(np.int32)
+            marker_size = int(8/96*self.render_size)
+            thickness = int(1/96*self.render_size)
+            cv2.drawMarker(img, coord,
+                color=(255,0,0), markerType=cv2.MARKER_CROSS,
+                markerSize=marker_size, thickness=thickness)
+        
+        return img
 
     def teleop_agent(self):
         TeleopAgent = collections.namedtuple('TeleopAgent', ['act'])

@@ -220,7 +220,7 @@ class PushTImageRunner(BaseImageRunner):
                 past_action = action
 
                 # update stage
-                policy.inpainting.update_task_finish(info[0])
+                # policy.inpainting.update_task_finish(info[0])
 
                 # update pbar
                 pbar.update(action.shape[1])

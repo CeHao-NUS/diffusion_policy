@@ -53,8 +53,8 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
 
         # new inpainting
         # self.inpainting = BlockPushInpainting()
-        # self.inpainting = KitchenInpaint()
-        self.inpainting = PushtInpaint()
+        self.inpainting = KitchenInpaint()
+        # self.inpainting = PushtInpaint()
 
         if num_inference_steps is None:
             num_inference_steps = noise_scheduler.config.num_train_timesteps
@@ -93,7 +93,7 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
                 **kwargs
                 ).prev_sample
             
-            '''
+            # '''
             # 4. ==================== apply inpainting, skip the last step
             # print("========== inpainting {}==========".format(t))
             # print('cond \n', self.inpainting.cond[0,:,0])
@@ -106,7 +106,7 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
                 # print(t)
                 trajectory = self.inpainting.inpaint(trajectory)
             # print('traj inpainted \n', trajectory[0,:,0])
-            '''
+            # '''
         
         # finally make sure conditioning is enforced
         trajectory[condition_mask] = condition_data[condition_mask]        
@@ -153,7 +153,7 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
             cond_data[:,:To,Da:] = nobs[:,:To]
             cond_mask[:,:To,Da:] = True
 
-        '''
+        # '''
         # ======================= create inpatining mask
         # 1. get ori mask and cond, update stage
         inpainting_mask, inpainting_cond = self.inpainting.create_mask_and_data(cond_data, obs_dict['obs'], update_state=True)
@@ -161,7 +161,7 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
         # 2. get normalized mask and cond
         inpainting_cond_normalized = self.normalizer['action'].normalize(inpainting_cond)
         self.inpainting.set_mask_cond(inpainting_mask, inpainting_cond_normalized.detach().cpu().numpy())
-        '''
+        # '''
 
         
         # run sampling
@@ -243,6 +243,9 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
         trajectory = action
         if self.obs_as_cond:
             cond = obs[:,:self.n_obs_steps,:]
+            # extend condition by the end of action
+            # last_action = action[:,-1:,:].repeat(1, cond.shape[1], 1)
+            # cond = torch.cat((cond, last_action), dim=-1)
             if self.pred_action_steps_only:
                 To = self.n_obs_steps
                 start = To - 1

@@ -15,7 +15,6 @@ python eval.py --checkpoint ./data/outputs/0550-test_mean_score=0.969.ckpt --out
 
 
 
-
 ======================================== block_pushing
 
 # block
@@ -26,14 +25,14 @@ wget https://diffusion-policy.cs.columbia.edu/data/training/block_pushing.zip
 
 unzip block_pushing.zip && rm -f block_pushing.zip && cd ..
 
-wget -O image_block_pushing_diffusion_policy_cnn.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/block_pushing/diffusion_policy_cnn/config.yaml
+wget -O block_pushing_diffusion_policy_cnn.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/block_pushing/diffusion_policy_cnn/config.yaml
 
 python train.py --config-dir=. --config-name=image_block_pushing_diffusion_policy_cnn.yaml training.seed=42 training.device=cuda:0 hydra.run.dir='data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}'
 
 
 ## transformer
 
-wget -O image_block_pushing_diffusion_policy_transformer.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/block_pushing/diffusion_policy_transformer/config.yaml
+wget -O block_pushing_diffusion_policy_transformer.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/block_pushing/diffusion_policy_transformer/config.yaml
 
 
 python train.py --config-dir=. --config-name=image_block_pushing_diffusion_policy_transformer.yaml training.seed=42 training.device=cuda:0 hydra.run.dir='data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}'
@@ -51,7 +50,7 @@ wget https://diffusion-policy.cs.columbia.edu/data/training/kitchen.zip
 unzip kitchen.zip && rm -f kitchen.zip && cd ..
 
 
-wget -O low_dim_kitchen.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/kitchen/diffusion_policy_transformer/config.yaml
+wget -O kitchen_diffusion_policy_transformer.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/kitchen/diffusion_policy_transformer/config.yaml
 
 python train.py --config-dir=. --config-name=low_dim_kitchen.yaml training.seed=42 training.device=cuda:0 hydra.run.dir='data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}'
 
@@ -66,15 +65,32 @@ python eval.py --checkpoint ./data/outputs/2700-test_mean_score=0.574.ckpt --out
 
 
 # ========================== push T=========
-wget -O low_dim_pushT.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/pusht/diffusion_policy_transformer/config.yaml
+wget -O pusht_diffusion_policy_transformer.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/pusht/diffusion_policy_transformer/config.yaml
 
 python eval.py --checkpoint ./data/outputs/0850-test_mean_score=0.967.ckpt --output_dir data/pusht_eval/test
 
 
+--------- train -----------
+
+python train.py --config-dir=. --config-name=low_dim_pushT_debug.yaml training.seed=42 training.device=cuda:0 hydra.run.dir='data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}'
+
 # image version =================
 
-wget -O cnn_pushT.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/pusht/diffusion_policy_cnn//config.yaml
+wget -O pusht_diffusion_policy_cnn.yaml https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/pusht/diffusion_policy_cnn//config.yaml
 
 python eval.py --checkpoint ./data/outputs/0500-test_mean_score=0.884.ckpt --output_dir data/pusht_cnn_eval/test
 
+
+
+
+
+# ============== test 4 results push t ==============
+
+python eval.py --checkpoint  ./files/pretrain_models/pusht/lowdim_diffusion_policy_transformer_epoch=0850-test_mean_score=0.967.ckpt --output_dir ./files/eval_results/pusht/lowdim_tranformer
+
+python eval.py --checkpoint  ./files/pretrain_models/pusht/lowdim_diffusion_policy_cnn_epoch=0550-test_mean_score=0.969.ckpt --output_dir ./files/eval_results/pusht/lowdim_cnn
+
+python eval.py --checkpoint  ./files/pretrain_models/pusht/image_diffusion_policy_transformer__epoch=0100-test_mean_score=0.748.ckpt --output_dir ./files/eval_results/pusht/image_transformer
+
+python eval.py --checkpoint  ./files/pretrain_models/pusht/image_diffusion_policy_cnn_epoch=0500-test_mean_score=0.884.ckpt --output_dir ./files/eval_results/pusht/image_cnn
 

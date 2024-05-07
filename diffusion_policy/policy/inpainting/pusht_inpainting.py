@@ -38,7 +38,7 @@ class PushtInpaint(BaseInpainting):
 
         return x_inpaint
 
-    def create_mask_and_data(self, x, update_state=True):
+    def create_mask_and_data(self, x, obs, update_state=True):
         
 
         # convert torch to numpy

@@ -269,7 +269,7 @@ class DiffusionUnetHybridImagePolicy(BaseImagePolicy):
         # '''
         # ======================= create inpatining mask
         # 1. get ori mask and cond, update stage
-        inpainting_mask, inpainting_cond = self.inpainting.create_mask_and_data(cond_data, update_state=True)
+        inpainting_mask, inpainting_cond = self.inpainting.create_mask_and_data(cond_data, nobs, update_state=True)
         
         # 2. get normalized mask and cond
         inpainting_cond_normalized = self.normalizer['action'].normalize(inpainting_cond)
