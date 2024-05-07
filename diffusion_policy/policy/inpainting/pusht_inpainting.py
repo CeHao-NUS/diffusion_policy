@@ -14,9 +14,14 @@ TRAJ_PT = [
 
 
 class PushtInpaint(BaseInpainting):
-    def __init__(self, traj_pt=TRAJ_PT[1]):
+    def __init__(self, inpainting_method={}, traj_pt=TRAJ_PT[1]):
         self.reset()
-        self.traj_pt = traj_pt
+
+        if 'traj_pt_idx' in inpainting_method:
+            traj_pt = TRAJ_PT[inpainting_method['traj_pt_idx']]
+            self.traj_pt = traj_pt  
+        else:
+            self.traj_pt = traj_pt
 
     def reset(self):
         self.constraint = 0.01

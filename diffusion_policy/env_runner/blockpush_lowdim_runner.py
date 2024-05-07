@@ -36,16 +36,19 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
             abs_action=False,
             obs_eef_target=True,
             tqdm_interval_sec=5.0,
-            n_envs=None
+            n_envs=None,
+            inpainting=None
         ):
         super().__init__(output_dir)
 
-        # manual start
-        n_train_vis = 100
-        n_test_vis = 100
+        self.inpainting = inpainting
 
-        n_train = 1
-        n_test = 0
+        # manual start
+        # n_train_vis = 100
+        # n_test_vis = 100
+
+        # n_train = 1
+        # n_test = 0
         # train_start_seed = 4
 
 
@@ -201,7 +204,7 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
                 leave=False, mininterval=self.tqdm_interval_sec)
             done = False
 
-            store = {'obs':[], 'action_pred':[], 'action':[]}
+            # store = {'obs':[], 'action_pred':[], 'action':[]}
 
             while not done:
                 # create obs dict
@@ -230,9 +233,9 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
                 action = np_action_dict['action']
 
                 # ======= store, to numpy =========
-                store['obs'].append(obs_dict['obs'].detach().to('cpu').numpy())
-                store['action_pred'].append(action_dict['action_pred'].detach().to('cpu').numpy())
-                store['action'].append(action)
+                # store['obs'].append(obs_dict['obs'].detach().to('cpu').numpy())
+                # store['action_pred'].append(action_dict['action_pred'].detach().to('cpu').numpy())
+                # store['action'].append(action)
 
                 # step env
                 obs, reward, done, info = env.step(action)
@@ -244,9 +247,9 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
             pbar.close()
 
             # ================= save all store
-            store['obs'] = np.array(store['obs'])
-            store['action'] = np.array(store['action'])
-            store['action_pred'] = np.array(store['action_pred'])
+            # store['obs'] = np.array(store['obs'])
+            # store['action'] = np.array(store['action'])
+            # store['action_pred'] = np.array(store['action_pred'])
             # np.save('store.npy', store)
 
 

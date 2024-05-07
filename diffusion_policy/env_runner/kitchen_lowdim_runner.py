@@ -42,18 +42,20 @@ class KitchenLowdimRunner(BaseLowdimRunner):
             tqdm_interval_sec=5.0,
             abs_action=False,
             robot_noise_ratio=0.1,
-            n_envs=None
+            n_envs=None,
+            inpainting=None
         ):
         super().__init__(output_dir)
 
+        self.inpainting = inpainting
 
         # manual start
-        n_train_vis = 100
-        n_test_vis = 100
+        # n_train_vis = 100
+        # n_test_vis = 100
 
-        n_train = 1
-        n_test = 0
-        train_start_seed = 100
+        # n_train = 1
+        # n_test = 0
+        # train_start_seed = 100
         # max_steps = 150
 
         render_hw = (240*4, 360*4)
@@ -288,7 +290,8 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                 past_action = action
 
                 # update the inpainting
-                policy.inpainting.update_task_finish(info[0])
+                if self.inpainting is not None:
+                    policy.inpainting.update_task_finish(info[0])
 
                 # update pbar
                 pbar.update(action.shape[1])

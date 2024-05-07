@@ -24,9 +24,14 @@ mapping = {0: 'b0', 1: 'b1', 2: 't0', 3: 't1'}
 
 class BlockPushInpainting(BaseInpainting):
 
-    def __init__(self, sequence=0):
-        self.sequence = sequence
+    def __init__(self, inpainting_method={}, sequence=0):
+        # self.sequence = sequence
         self.reset()
+
+        if 'sequence_idx' in inpainting_method:
+            self.sequence = inpainting_method['sequence_idx']
+        else:
+            self.sequence = sequence
         
 
     def reset(self):

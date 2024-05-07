@@ -37,17 +37,19 @@ class PushTKeypointsRunner(BaseLowdimRunner):
             agent_keypoints=False,
             past_action=False,
             tqdm_interval_sec=5.0,
-            n_envs=None
+            n_envs=None,
+            inpainting=None
         ):
         super().__init__(output_dir)
 
+        self.inpainting = inpainting
 
         # manual start
-        n_train_vis = 100
-        n_test_vis = 100
+        # n_train_vis = 100
+        # n_test_vis = 100
 
-        n_train = 1
-        n_test = 0
+        # n_train = 1
+        # n_test = 0
 
         if n_envs is None:
             n_envs = n_train + n_test
@@ -241,7 +243,8 @@ class PushTKeypointsRunner(BaseLowdimRunner):
                 past_action = action
 
                 # update stage
-                policy.inpainting.update_task_finish(info[0])
+                if self.inpainting is not None:
+                    policy.inpainting.update_task_finish(info[0])
 
                 # update pbar
                 pbar.update(action.shape[1])

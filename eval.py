@@ -16,21 +16,37 @@ import torch
 import dill
 import wandb
 import json
+import yaml
+from omegaconf import OmegaConf
 from diffusion_policy.workspace.base_workspace import BaseWorkspace
 
 @click.command()
 @click.option('-c', '--checkpoint', required=True)
 @click.option('-o', '--output_dir', required=True)
 @click.option('-d', '--device', default='cuda:0')
-def main(checkpoint, output_dir, device):
+@click.option('-g', '--manual_cfg', default=None)
+def main(checkpoint, output_dir, device, manual_cfg):
     # if os.path.exists(output_dir):
     #     click.confirm(f"Output path {output_dir} already exists! Overwrite?", abort=True)
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
     
     # load checkpoint
     payload = torch.load(open(checkpoint, 'rb'), pickle_module=dill)
-    cfg = payload['cfg']
+    
+
+    # process the cfg(change runner, and policy)
+    if manual_cfg is not None:
+        # manual_cfg is the file path of a yaml, read it and update cfg
+        # cfg = yaml.safe_load(manual_cfg.open('r'))
+        raw_cfg = yaml.safe_load(open(manual_cfg))
+        cfg = OmegaConf.create(raw_cfg)
+        print(f"Using manual cfg: {manual_cfg}")
+    else:
+        cfg = payload['cfg']
+
     cls = hydra.utils.get_class(cfg._target_)
+
+
     workspace = cls(cfg, output_dir=output_dir)
     workspace: BaseWorkspace
     workspace.load_payload(payload, exclude_keys=None, include_keys=None)

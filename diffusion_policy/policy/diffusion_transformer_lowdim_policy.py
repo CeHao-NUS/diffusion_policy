@@ -26,6 +26,7 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
             num_inference_steps=None,
             obs_as_cond=False,
             pred_action_steps_only=False,
+            inpainting = None,
             # parameters passed to step
             **kwargs):
         super().__init__()
@@ -52,9 +53,23 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
         self.kwargs = kwargs
 
         # new inpainting
-        # self.inpainting = BlockPushInpainting()
-        self.inpainting = KitchenInpaint()
-        # self.inpainting = PushtInpaint()
+        if inpainting is not None:
+            self.inpainting_env = inpainting['inpainting_env']
+            self.inpainting_method = inpainting['inpainting_method']
+
+            print("========== inpainting ==========")
+            print('using inpainting in env: ', inpainting)
+            if self.inpainting_env == 'block_push':
+                self.inpainting = BlockPushInpainting(self.inpainting_method)
+            elif self.inpainting_env == 'kitchen':
+                self.inpainting = KitchenInpaint(self.inpainting_method)
+            elif self.inpainting_env == 'pusht':
+                self.inpainting = PushtInpaint(self.inpainting_method)
+            else:
+                raise ValueError(f"Unsupported inpainting method {inpainting}")
+        else:
+            self.inpainting = None
+
 
         if num_inference_steps is None:
             num_inference_steps = noise_scheduler.config.num_train_timesteps
@@ -93,20 +108,8 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
                 **kwargs
                 ).prev_sample
             
-            # '''
-            # 4. ==================== apply inpainting, skip the last step
-            # print("========== inpainting {}==========".format(t))
-            # print('cond \n', self.inpainting.cond[0,:,0])
-            # print('traj \n', trajectory[0,:,0])
-            # if t == scheduler.timesteps[-2]:
-            #     a = 1
-
-            # if t > scheduler.timesteps[-1]:
-            if True:
-                # print(t)
+            if self.inpainting is not None:
                 trajectory = self.inpainting.inpaint(trajectory)
-            # print('traj inpainted \n', trajectory[0,:,0])
-            # '''
         
         # finally make sure conditioning is enforced
         trajectory[condition_mask] = condition_data[condition_mask]        
@@ -153,15 +156,16 @@ class DiffusionTransformerLowdimPolicy(BaseLowdimPolicy):
             cond_data[:,:To,Da:] = nobs[:,:To]
             cond_mask[:,:To,Da:] = True
 
-        # '''
-        # ======================= create inpatining mask
-        # 1. get ori mask and cond, update stage
-        inpainting_mask, inpainting_cond = self.inpainting.create_mask_and_data(cond_data, obs_dict['obs'], update_state=True)
-        
-        # 2. get normalized mask and cond
-        inpainting_cond_normalized = self.normalizer['action'].normalize(inpainting_cond)
-        self.inpainting.set_mask_cond(inpainting_mask, inpainting_cond_normalized.detach().cpu().numpy())
-        # '''
+        if self.inpainting is not None:
+            
+            # ======================= create inpatining mask
+            # 1. get ori mask and cond, update stage
+            inpainting_mask, inpainting_cond = self.inpainting.create_mask_and_data(cond_data, obs_dict['obs'], update_state=True)
+            
+            # 2. get normalized mask and cond
+            inpainting_cond_normalized = self.normalizer['action'].normalize(inpainting_cond)
+            self.inpainting.set_mask_cond(inpainting_mask, inpainting_cond_normalized.detach().cpu().numpy())
+            
 
         
         # run sampling

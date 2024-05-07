@@ -70,9 +70,12 @@ Thresholds = [
 SEQ = [1,0]
 
 class KitchenInpaint(BaseInpainting):
-    def __init__(self, sequence=SEQ):
-        self.sequence = sequence
+    def __init__(self, inpainting_method={}, sequence=SEQ):
         self.reset()
+        if 'sequence_idx' in inpainting_method:
+            self.sequence = inpainting_method['sequence_idx']
+        else:
+            self.sequence = sequence
 
     def reset(self):
         self.stage = 0
