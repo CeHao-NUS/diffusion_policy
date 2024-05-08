@@ -3,6 +3,9 @@
 *.ipynb
 files/*
 
+# add back files/train_yaml
+!files/train_yaml
+
 bin
 logs
 wandb
