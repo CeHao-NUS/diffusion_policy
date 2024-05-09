@@ -41,3 +41,6 @@ python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_e
 # kitchen
 python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-test_mean_score=0.574.ckpt --output_dir ./files/eval_results/kitchen/inpainting --manual_cfg './files/train_yaml/inpainting/kitchen/kitchen_diffusion_policy_transformer.yaml'
 
+
+# ========================== condition training =========================
+python train.py --config-dir='./files/train_yaml/goal_cond/pusht' --config-name='pusht_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/pusht_condition'
