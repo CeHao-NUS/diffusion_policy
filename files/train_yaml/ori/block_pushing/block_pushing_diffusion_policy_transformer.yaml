@@ -28,7 +28,7 @@ logging:
   group: null
   id: null
   mode: online
-  name: 2022.12.28-22.22.46_train_diffusion_transformer_lowdim_blockpush_lowdim_seed
+  name: R16_test_train_diffusion_transformer_lowdim_blockpush_lowdim_seed
   project: diffusion_policy_debug
   resume: true
   tags:
