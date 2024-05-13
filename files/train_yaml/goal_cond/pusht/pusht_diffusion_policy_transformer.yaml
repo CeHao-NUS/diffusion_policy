@@ -28,7 +28,7 @@ logging:
   group: null
   id: null
   mode: online
-  name: R16_cond_test_train_diffusion_transformer_lowdim_pusht_lowdim
+  name: R16_cond_test(last_0_train_diffusion_transformer_lowdim_pusht_lowdim
   project: diffusion_policy_debug
   resume: true
   tags:

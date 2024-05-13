@@ -46,5 +46,11 @@ python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-te
 
 
 # ========================== condition training =========================
-python train.py --config-dir='./files/train_yaml/goal_cond/pusht' --config-name='pusht_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/pusht_condition'
 
+# pusht
+python train.py --config-dir='./files/train_yaml/goal_cond/pusht' --config-name='pusht_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/pusht_condition_last0'
+
+python eval.py --checkpoint  ./files/train_results/pusht_condition_last0/checkpoints/latest.ckpt --output_dir ./files/eval_results/pusht/cond_test_last0 
+
+# block
+python train.py --config-dir='./files/train_yaml/goal_cond/block_pushing' --config-name='block_pushing_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/blochpush_cond'

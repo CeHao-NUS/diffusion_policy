@@ -12,6 +12,7 @@ from diffusion_policy.model.diffusion.transformer_for_diffusion import Transform
 from diffusion_policy.model.diffusion.mask_generator import LowdimMaskGenerator
 
 from diffusion_policy.policy.goal_condition.pusht_cond import PushtCondition
+from diffusion_policy.policy.goal_condition.blockpush_cond import BlockPushCondition
 
 class DiffusionTransformerLowdimCondPolicy(BaseLowdimPolicy):
     def __init__(self, 
@@ -62,6 +63,8 @@ class DiffusionTransformerLowdimCondPolicy(BaseLowdimPolicy):
 
             if cond_env == 'pusht':
                 self.external_condition = PushtCondition(cond_method)
+            elif cond_env == 'blockpush':
+                self.external_condition = BlockPushCondition(cond_method)
 
             self.external_condition 
     
@@ -144,7 +147,8 @@ class DiffusionTransformerLowdimCondPolicy(BaseLowdimPolicy):
             cond_mask[:,:To,Da:] = True          
 
         # ============  external condition ============
-        new_cond = self.external_condition.get_fix_condition(nobs, cond)
+        self.external_condition.pre_process_condition(self.normalizer['action'].normalize, nobs, cond)
+        new_cond = self.external_condition.get_eval_condition(nobs, cond)
         cond = new_cond
         
         # run sampling
