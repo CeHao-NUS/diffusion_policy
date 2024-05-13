@@ -50,7 +50,18 @@ python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-te
 # pusht
 python train.py --config-dir='./files/train_yaml/goal_cond/pusht' --config-name='pusht_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/pusht_condition_last0'
 
-python eval.py --checkpoint  ./files/train_results/pusht_condition_last0/checkpoints/latest.ckpt --output_dir ./files/eval_results/pusht/cond_test_last0 
+python eval.py --checkpoint  ./files/train_results/pusht_condition_last0/checkpoints/latest.ckpt --output_dir ./files/eval_results/pusht/cond_test_last0
+
+=== spefical eval with two checkpoints
+python eval_classifier.py --checkpoint ./files/pretrain_models/pusht/lowdim_diffusion_policy_transformer_epoch=0850-test_mean_score=0.967.ckpt \
+--checkpoint_cond ./files/train_results/pusht_condition_last0/checkpoints/latest.ckpt --output_dir ./files/eval_results/pusht/cond_test_last0 \
+--output_dir ./files/eval_results/pusht/cond_classifer
 
 # block
-python train.py --config-dir='./files/train_yaml/goal_cond/block_pushing' --config-name='block_pushing_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/blochpush_cond'
+python train.py --config-dir='./files/train_yaml/goal_cond/block_pushing' --config-name='block_pushing_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/blochpush_cond_ee'
+
+python eval.py --checkpoint  ./files/train_results/blochpush_cond/checkpoints/latest.ckpt --output_dir ./files/eval_results/blochpush/cond_test_last0 
+
+# kitchen
+python train.py --config-dir='./files/train_yaml/goal_cond/kitchen' --config-name='kitchen_diffusion_policy_transformer.yaml' training.seed=42 training.device=cuda:0 hydra.run.dir='files/train_results/kitchen_cond'
+

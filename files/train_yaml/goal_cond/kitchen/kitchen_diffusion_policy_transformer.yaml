@@ -28,7 +28,7 @@ logging:
   group: null
   id: null
   mode: online
-  name: 2023.01.27-17.53.15_train_diffusion_transformer_lowdim_kitchen_lowdim
+  name: kitchen_cond2_train_diffusion_transformer_lowdim_kitchen_lowdim
   project: diffusion_policy_debug
   resume: true
   tags:
@@ -37,7 +37,7 @@ logging:
   - default
 multi_run:
   run_dir: data/outputs/2023.01.27/17.53.15_train_diffusion_transformer_lowdim_kitchen_lowdim
-  wandb_name_base: 2023.01.27-17.53.15_train_diffusion_transformer_lowdim_kitchen_lowdim
+  wandb_name_base: 2024.01.27-17.53.15_train_diffusion_transformer_lowdim_kitchen_lowdim
 n_action_steps: 8
 n_latency_steps: 0
 n_obs_steps: 4
@@ -52,13 +52,13 @@ optimizer:
   weight_decay: 0.001
 past_action_visible: false
 policy:
-  _target_: diffusion_policy.policy.diffusion_transformer_lowdim_policy.DiffusionTransformerLowdimPolicy
+  _target_: diffusion_policy.policy.diffusion_transformer_lowdim_cond_policy.DiffusionTransformerLowdimCondPolicy ###
   action_dim: 9
   horizon: 16
   model:
     _target_: diffusion_policy.model.diffusion.transformer_for_diffusion.TransformerForDiffusion
     causal_attn: true
-    cond_dim: 60
+    cond_dim: 69 # 60 + 9
     horizon: 16
     input_dim: 9
     n_cond_layers: 0
@@ -86,6 +86,10 @@ policy:
   obs_as_cond: true
   obs_dim: 60
   pred_action_steps_only: false
+  condition: ###
+    cond_env: kitchen
+    cond_method:
+      idx: 0 
 pred_action_steps_only: false
 task:
   abs_action: true

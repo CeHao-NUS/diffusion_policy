@@ -38,11 +38,13 @@ class PushTKeypointsRunner(BaseLowdimRunner):
             past_action=False,
             tqdm_interval_sec=5.0,
             n_envs=None,
-            inpainting=None
+            inpainting=None,
+            classfier=None,
         ):
         super().__init__(output_dir)
 
         self.inpainting = inpainting
+        self.classifer = classfier
 
         # manual start
         # n_train_vis = 100
@@ -167,7 +169,7 @@ class PushTKeypointsRunner(BaseLowdimRunner):
         self.max_steps = max_steps
         self.tqdm_interval_sec = tqdm_interval_sec
     
-    def run(self, policy: BaseLowdimPolicy):
+    def run(self, policy: BaseLowdimPolicy, policy_cond=None):
         device = policy.device
         dtype = policy.dtype
 
@@ -227,7 +229,15 @@ class PushTKeypointsRunner(BaseLowdimRunner):
 
                 # run policy
                 with torch.no_grad():
-                    action_dict = policy.predict_action(obs_dict)
+                    # ============= choose which policy to execute =============
+                    if self.classifer is not None and policy_cond is not None:
+                        policy_cond.external_condition.update_task_finish(info[0])
+                        use_condition = policy_cond.external_condition.use_condition()
+
+                        if use_condition:
+                            action_dict = policy_cond.predict_action(obs_dict)
+                        else:
+                            action_dict = policy.predict_action(obs_dict)
 
                 # device_transfer
                 np_action_dict = dict_apply(action_dict,
@@ -242,7 +252,7 @@ class PushTKeypointsRunner(BaseLowdimRunner):
                 done = np.all(done)
                 past_action = action
 
-                # update stage
+                # =========== update stage
                 if self.inpainting is not None:
                     policy.inpainting.update_task_finish(info[0])
 

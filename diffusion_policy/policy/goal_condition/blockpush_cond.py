@@ -20,7 +20,6 @@ mapping = {0: 'b0', 1: 'b1', 2: 't0', 3: 't1'}
 class BlockPushCondition:
     def __init__(self, cond_method={}):
         self.finish_setup = False
-
         self.sequence = 0
 
     def pre_process_condition(self, action_norm, obs, cond):
@@ -32,7 +31,7 @@ class BlockPushCondition:
         poses = self._parse_obs(obs)
         # find target 0 and target 1 pose
 
-        target_pose = torch.cat((poses[2], poses[3]), dim=-1) # B, 1, 4
+        target_pose = torch.cat((poses[0], poses[1]), dim=-1) # B, 1, 4
         extend_cond = target_pose.repeat(1, cond.shape[1], 1).to(cond.device)
         new_cond = torch.cat((cond, extend_cond), dim=-1)
 
@@ -43,12 +42,12 @@ class BlockPushCondition:
         poses = self._parse_obs(obs)
 
         # final block0 and block1 pose
-        last_pos = torch.concat([poses[0], poses[1]], dim=-1) # B, 1, 4
+        last_pos = torch.concat([poses[1], poses[2]], dim=-1) # B, 1, 4
         extend_cond = last_pos.repeat(1, cond.shape[1], 1).to(cond.device)
-        # print('!!!')
-        # print(last_pos.shape, extend_cond.shape, cond.shape)
-
         new_cond = torch.cat((cond, extend_cond), dim=-1)
+
+        # print('action', action.shape, 'obs', obs.shape, 'cond', cond.shape, 'new_cond', new_cond.shape)
+        #             (B, 5, 2)          (B, 5, 16)              (B, 3, 15)
 
         return new_cond
 
@@ -56,11 +55,13 @@ class BlockPushCondition:
     def _parse_obs(self, obs):
         block0_translation = obs[:, -1:, 0:2]
         block1_translation = obs[:, -1:, 3:5]
-        # effector_translation = obs[:, -1:, 6:8]
-        # effector_target_translation = obs[:, -1:, 8:10]
+        effector_translation = obs[:, -1:, 6:8]
+        effector_target_translation = obs[:, -1:, 8:10]
         target0_translation = obs[:, -1:, 10:12]
         target1_translation = obs[:, -1:, 13:15]
 
-        poses = [block0_translation, block1_translation, target0_translation, target1_translation]
+        poses = [block0_translation, block1_translation, 
+                 effector_translation, effector_target_translation, 
+                 target0_translation, target1_translation]
 
         return poses
