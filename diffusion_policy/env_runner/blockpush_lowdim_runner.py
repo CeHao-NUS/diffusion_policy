@@ -37,11 +37,13 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
             obs_eef_target=True,
             tqdm_interval_sec=5.0,
             n_envs=None,
-            inpainting=None
+            inpainting=None,
+            classifier=None,
         ):
         super().__init__(output_dir)
 
         self.inpainting = inpainting
+        self.classifer = classifier
 
         # manual start
         # n_train_vis = 100
@@ -163,7 +165,7 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
         self.obs_eef_target = obs_eef_target
 
 
-    def run(self, policy: BaseLowdimPolicy):
+    def run(self, policy: BaseLowdimPolicy, policy_cond=None):
         device = policy.device
         dtype = policy.dtype
         env = self.env
@@ -224,7 +226,14 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
 
                 # run policy
                 with torch.no_grad():
-                    action_dict = policy.predict_action(obs_dict)
+                    # ============= choose which policy to execute =============
+                    if self.classifer is not None and policy_cond is not None:
+                        use_condition = policy_cond.external_condition.use_condition()
+
+                        if use_condition:
+                            action_dict = policy_cond.predict_action(obs_dict)
+                        else:
+                            action_dict = policy.predict_action(obs_dict)
 
                 # device_transfer
                 np_action_dict = dict_apply(action_dict,

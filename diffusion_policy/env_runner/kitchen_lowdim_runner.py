@@ -43,11 +43,13 @@ class KitchenLowdimRunner(BaseLowdimRunner):
             abs_action=False,
             robot_noise_ratio=0.1,
             n_envs=None,
-            inpainting=None
+            inpainting=None,
+            classifier=None,
         ):
         super().__init__(output_dir)
 
         self.inpainting = inpainting
+        self.classifer = classifier
 
         # manual start
         # n_train_vis = 100
@@ -208,7 +210,7 @@ class KitchenLowdimRunner(BaseLowdimRunner):
         self.tqdm_interval_sec = tqdm_interval_sec
 
 
-    def run(self, policy: BaseLowdimPolicy):
+    def run(self, policy: BaseLowdimPolicy, policy_cond=None):
         device = policy.device
         dtype = policy.dtype
         env = self.env
@@ -266,7 +268,14 @@ class KitchenLowdimRunner(BaseLowdimRunner):
 
                 # run policy
                 with torch.no_grad():
-                    action_dict = policy.predict_action(obs_dict)
+                     # ============= choose which policy to execute =============
+                    if self.classifer is not None and policy_cond is not None:
+                        use_condition = policy_cond.external_condition.use_condition()
+
+                        if use_condition:
+                            action_dict = policy_cond.predict_action(obs_dict)
+                        else:
+                            action_dict = policy.predict_action(obs_dict)
 
                 # device_transfer
                 np_action_dict = dict_apply(action_dict,
@@ -292,6 +301,9 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                 # update the inpainting
                 if self.inpainting is not None:
                     policy.inpainting.update_task_finish(info[0])
+
+                if self.classifer is not None:
+                    policy_cond.external_condition.update_task_finish(info[0])
 
                 # update pbar
                 pbar.update(action.shape[1])

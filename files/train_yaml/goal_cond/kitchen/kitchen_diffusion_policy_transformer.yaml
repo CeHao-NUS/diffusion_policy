@@ -113,9 +113,9 @@ task:
     n_action_steps: 8
     n_envs: null
     n_obs_steps: 4
-    n_test: 50
+    n_test: 0
     n_test_vis: 4
-    n_train: 6
+    n_train: 1
     n_train_vis: 2
     past_action: false
     render_hw:
@@ -124,6 +124,7 @@ task:
     robot_noise_ratio: 0.1
     test_start_seed: 100000
     train_start_seed: 0
+    classifier: true
   keypoint_dim: 3
   name: kitchen_lowdim
   obs_dim: 60

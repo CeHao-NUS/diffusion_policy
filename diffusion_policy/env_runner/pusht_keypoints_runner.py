@@ -231,7 +231,6 @@ class PushTKeypointsRunner(BaseLowdimRunner):
                 with torch.no_grad():
                     # ============= choose which policy to execute =============
                     if self.classifer is not None and policy_cond is not None:
-                        policy_cond.external_condition.update_task_finish(info[0])
                         use_condition = policy_cond.external_condition.use_condition()
 
                         if use_condition:
@@ -255,6 +254,9 @@ class PushTKeypointsRunner(BaseLowdimRunner):
                 # =========== update stage
                 if self.inpainting is not None:
                     policy.inpainting.update_task_finish(info[0])
+
+                if self.classifer is not None:
+                    policy_cond.external_condition.update_task_finish(info[0])
 
                 # update pbar
                 pbar.update(action.shape[1])

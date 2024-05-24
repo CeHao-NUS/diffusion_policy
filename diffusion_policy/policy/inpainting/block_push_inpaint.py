@@ -78,7 +78,6 @@ class BlockPushInpainting(BaseInpainting):
         # ==== create mask and data   =====
         # based on the stage
 
-
         mask_index = [2,3,4]
         # mask_index = [3, 4]
         mask = np.zeros_like(x)

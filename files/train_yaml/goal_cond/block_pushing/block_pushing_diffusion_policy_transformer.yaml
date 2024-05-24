@@ -28,7 +28,7 @@ logging:
   group: null
   id: null
   mode: online
-  name: cond_test_train_diffusion_transformer_lowdim_blockpush_lowdim_seed
+  name: cond_block_ee_train_diffusion_transformer_lowdim_blockpush_lowdim_seed
   project: diffusion_policy_debug
   resume: true
   tags:
@@ -58,7 +58,7 @@ policy:
   model:
     _target_: diffusion_policy.model.diffusion.transformer_for_diffusion.TransformerForDiffusion
     causal_attn: true
-    cond_dim: 20 # 16+4
+    cond_dim: 18 # 16+2
     horizon: 5
     input_dim: 2
     n_cond_layers: 0
@@ -111,14 +111,15 @@ task:
     n_action_steps: 1
     n_envs: null
     n_obs_steps: 3
-    n_test: 50
+    n_test: 1
     n_test_vis: 4
-    n_train: 6
+    n_train: 1
     n_train_vis: 2
     obs_eef_target: true
     past_action: false
     test_start_seed: 100000
     train_start_seed: 0
+    classifer: true # set flag
   keypoint_dim: 2
   name: blockpush_lowdim_seed
   obs_dim: 16

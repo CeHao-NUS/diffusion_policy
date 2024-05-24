@@ -22,7 +22,7 @@ from diffusion_policy.workspace.base_workspace import BaseWorkspace
 @click.option('-cd', '--checkpoint_cond', required=True)
 @click.option('-o', '--output_dir', required=True)
 @click.option('-d', '--device', default='cuda:0')
-
+@click.option('-g', '--manual_cfg', default=None)
 def main(checkpoint, checkpoint_cond, output_dir, device, manual_cfg):
     # if os.path.exists(output_dir):
     #     click.confirm(f"Output path {output_dir} already exists! Overwrite?", abort=True)
@@ -50,7 +50,12 @@ def main(checkpoint, checkpoint_cond, output_dir, device, manual_cfg):
     policy.eval()
     
     # =========== conditional policy
-    cfg_cond = payload_cond['cfg']
+    if manual_cfg is not None:
+        raw_cfg = yaml.safe_load(open(manual_cfg))
+        cfg_cond = OmegaConf.create(raw_cfg)
+        print(f"Using manual cfg: {manual_cfg}")
+    else:
+        cfg_cond = payload_cond['cfg']
     cls_cond = hydra.utils.get_class(cfg_cond._target_)
 
     workspace_cond = cls_cond(cfg_cond, output_dir=output_dir)
