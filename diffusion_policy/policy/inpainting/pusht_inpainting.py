@@ -2,26 +2,32 @@
 import torch
 import numpy as np
 
-from diffusion_policy.policy.inpainting.base_inpainting import BaseInpainting, MSE_inequ_opt
+from diffusion_policy.policy.inpainting.base_inpainting import BaseInpainting, MSE_inequ_opt, inpaint_vanilla
 
 
 TRAJ_PT = [
-    [120, 256],
-    # [380, 350]
-    [360, 320]
-
+    [120, 256], # left
+    [360, 320], # right
+    [256, 100], # top
+    [256, 400] # bottom
 ]
 
 
 class PushtInpaint(BaseInpainting):
-    def __init__(self, inpainting_method={}, traj_pt=TRAJ_PT[1]):
+    def __init__(self, inpainting_method={}, traj_pt=TRAJ_PT[0]):
         self.reset()
 
-        if 'traj_pt_idx' in inpainting_method:
-            traj_pt = TRAJ_PT[inpainting_method['traj_pt_idx']]
+        if 'idx' in inpainting_method:
+            print('inpainting method:', inpainting_method)
+            traj_pt = TRAJ_PT[inpainting_method['idx']]
             self.traj_pt = traj_pt  
         else:
             self.traj_pt = traj_pt
+
+        if 'vanilla' in inpainting_method:
+            self.vanilla = inpainting_method['vanilla']
+        else:
+            self.vanilla = False
 
     def reset(self):
         self.constraint = 0.01
@@ -34,7 +40,11 @@ class PushtInpaint(BaseInpainting):
             mask, cond = self.mask, self.cond
             
             # apply inpainting
-            x_inpaint = MSE_inequ_opt(x, mask, cond, self.constraint)
+            if self.vanilla:
+                x_inpaint = inpaint_vanilla(x, mask, cond)
+            else:
+                x_inpaint = MSE_inequ_opt(x, mask, cond, self.constraint)
+
 
             # convert numpy to torch
             x_inpaint = torch.tensor(x_inpaint, dtype=torch.float32).to(x_ori.device)

@@ -28,8 +28,8 @@ class BlockPushInpainting(BaseInpainting):
         # self.sequence = sequence
         self.reset()
 
-        if 'sequence_idx' in inpainting_method:
-            self.sequence = inpainting_method['sequence_idx']
+        if 'idx' in inpainting_method:
+            self.sequence = inpainting_method['idx']
         else:
             self.sequence = sequence
         

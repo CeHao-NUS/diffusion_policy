@@ -104,12 +104,12 @@ class PushTEnv(gym.Env):
             
         # '''
         self.legacy = False
-        p_bias = 50
-        b_bias = 40
+        p_bias = 50 # point
+        b_bias = 40 # block
         state = np.array([256+p_bias, 256-p_bias, 256-b_bias, 256+b_bias, np.pi/4])
 
-        # state[0] += 100
-        # state[1] += 100
+        state[0] += 50 * np.random.uniform(-1, 1)
+        state[1] += 50 * np.random.uniform(-1, 1)
         # print('init state:', state)
         # print('goal pose:', self.goal_pose)
         # '''

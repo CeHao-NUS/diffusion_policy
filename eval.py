@@ -25,7 +25,8 @@ from diffusion_policy.workspace.base_workspace import BaseWorkspace
 @click.option('-o', '--output_dir', required=True)
 @click.option('-d', '--device', default='cuda:0')
 @click.option('-g', '--manual_cfg', default=None)
-def main(checkpoint, output_dir, device, manual_cfg):
+@click.option('-idx', '--index', default=None)
+def main(checkpoint, output_dir, device, manual_cfg, index):
     # if os.path.exists(output_dir):
     #     click.confirm(f"Output path {output_dir} already exists! Overwrite?", abort=True)
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -45,6 +46,11 @@ def main(checkpoint, output_dir, device, manual_cfg):
         cfg = payload['cfg']
 
     cls = hydra.utils.get_class(cfg._target_)
+
+    # check inpainting or cond
+    if index is not None:
+        if 'inpainting' in cfg.policy:
+            cfg.policy.inpainting.inpainting_method.idx = index
 
 
     workspace = cls(cfg, output_dir=output_dir)
@@ -73,8 +79,21 @@ def main(checkpoint, output_dir, device, manual_cfg):
             json_log[key] = value._path
         else:
             json_log[key] = value
+
     out_path = os.path.join(output_dir, 'eval_log.json')
     json.dump(json_log, open(out_path, 'w'), indent=2, sort_keys=True)
+
+
+    # save score to txt
+    score = runner_log['train/mean_score']
+    import wandb.sdk.data_types.video as wv
+    file_name = 'score' + wv.util.generate_id() + '.txt'
+
+    with open(os.path.join(output_dir, file_name), 'w') as f:
+        f.write(str(score))
+
+
+    
 
 if __name__ == '__main__':
     main()

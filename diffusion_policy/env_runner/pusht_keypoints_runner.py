@@ -47,11 +47,27 @@ class PushTKeypointsRunner(BaseLowdimRunner):
         self.classifer = classfier
 
         # manual start
-        # n_train_vis = 100
+        n_train_vis = 100
         # n_test_vis = 100
 
-        # n_train = 1
-        # n_test = 0
+        n_train = 1
+        n_test = 0
+
+        np.random.seed()
+        # state = np.random.get_state()
+
+        # # Extract the seed from the state
+        # current_seed = state[1][0]
+
+        # print("Current NumPy seed:", current_seed)
+
+        train_start_seed = np.random.randint(0, 10000)
+        # print("Train Start Seed:", train_start_seed)
+
+        # new_seed = np.random.randint(0, 10000)
+        # np.random.seed(new_seed)
+        # print("New NumPy seed:", new_seed)
+        
 
         if n_envs is None:
             n_envs = n_train + n_test
@@ -107,7 +123,7 @@ class PushTKeypointsRunner(BaseLowdimRunner):
                 if enable_render:
                     filename = pathlib.Path(output_dir).joinpath(
                         # 'media', wv.util.generate_id() + ".mp4")
-                        'media', str(i) + ".mp4")
+                        'media', str(i)+ '_' + wv.util.generate_id() + ".mp4")
                     filename.parent.mkdir(parents=False, exist_ok=True)
                     filename = str(filename)
                     env.env.file_path = filename
@@ -237,6 +253,9 @@ class PushTKeypointsRunner(BaseLowdimRunner):
                             action_dict = policy_cond.predict_action(obs_dict)
                         else:
                             action_dict = policy.predict_action(obs_dict)
+
+                    else:
+                        action_dict = policy.predict_action(obs_dict)
 
                 # device_transfer
                 np_action_dict = dict_apply(action_dict,

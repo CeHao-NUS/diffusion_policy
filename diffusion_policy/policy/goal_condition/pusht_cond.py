@@ -2,20 +2,24 @@
 import torch
 import numpy as np
 
-dummy_point = [0, 0]
+from diffusion_policy.policy.inpainting.pusht_inpainting import TRAJ_PT
 
-TRAJ_PT = [
-    [120, 256],
-    # [380, 350]
-    [360, 320]
+# TRAJ_PT = [
+#     [120, 256],
+#     # [380, 350]
+#     [360, 320]
 
-]
+# ]
 
 
 class PushtCondition:
 
     def __init__(self, cond_method={}):
-        self.traj_pt = TRAJ_PT[0]
+        # self.traj_pt = TRAJ_PT[0]
+        if 'idx' in cond_method:
+            print('condition method:', cond_method)
+            traj_pt = TRAJ_PT[cond_method['idx']]
+            self.traj_pt = traj_pt
 
         self.finish_setup = False
         self._use_condition = True

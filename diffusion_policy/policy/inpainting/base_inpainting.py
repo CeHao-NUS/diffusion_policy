@@ -21,19 +21,13 @@ class BaseInpainting:
         self.mask = mask
         self.cond = cond
 
-def base_inpaint(x, mask, cond, **kwargs):
-    pass
-
 
 # vanilla inpainting
-def inpaint_vanilla(x, mask, cond):
-    x_inpaint = mask * x + (1 - mask) * cond
+def inpaint_vanilla(x, mask, cond, threshold=None):
+    x_inpaint = (1 - mask) * x + mask * cond
+    # print(cond)
     return x_inpaint
 
-
-# inpainting opt
-def inpaint_opt():
-    pass
 
 
 def MSE_inequ_opt(x, mask, patch, threshold):

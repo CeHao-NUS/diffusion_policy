@@ -28,7 +28,7 @@ logging:
   group: null
   id: null
   mode: online
-  name: 2023.01.16-20.11.42_train_diffusion_transformer_lowdim_pusht_lowdim
+  name: R16_cond_test(last_0_train_diffusion_transformer_lowdim_pusht_lowdim
   project: diffusion_policy_debug
   resume: true
   tags:
@@ -52,13 +52,13 @@ optimizer:
   weight_decay: 0.001
 past_action_visible: false
 policy:
-  _target_: diffusion_policy.policy.diffusion_transformer_lowdim_policy.DiffusionTransformerLowdimPolicy
+  _target_: diffusion_policy.policy.diffusion_transformer_lowdim_cond_policy.DiffusionTransformerLowdimCondPolicy ###
   action_dim: 2
   horizon: 10
   model:
     _target_: diffusion_policy.model.diffusion.transformer_for_diffusion.TransformerForDiffusion
     causal_attn: true
-    cond_dim: 20
+    cond_dim: 22 # 20 + 2
     horizon: 10
     input_dim: 2
     n_cond_layers: 0
@@ -86,10 +86,11 @@ policy:
   obs_as_cond: true
   obs_dim: 20
   pred_action_steps_only: false
-  inpainting: # inpainting related
-    inpainting_env: pusht 
-    inpainting_method:
-      traj_pt_idx: 1
+  condition: ###
+    cond_env: pusht
+    cond_method:
+      idx: 0
+
 pred_action_steps_only: false
 task:
   action_dim: 2
@@ -113,14 +114,14 @@ task:
     n_envs: null
     n_latency_steps: 0
     n_obs_steps: 2
-    n_test: 0
+    n_test: 1 # change
     n_test_vis: 4
-    n_train: 1
+    n_train: 1 # change
     n_train_vis: 2
     past_action: false
     test_start_seed: 100000
     train_start_seed: 0
-    inpainting: True # for inpainting 
+    classfier: true # use condition
   keypoint_dim: 2
   name: pusht_lowdim
   obs_dim: 20
@@ -135,7 +136,7 @@ training:
   max_train_steps: null
   max_val_steps: null
   num_epochs: 8000
-  resume: true
+  resume: false ### 
   rollout_every: 50
   sample_every: 5
   seed: 42

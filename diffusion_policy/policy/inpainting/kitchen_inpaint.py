@@ -72,8 +72,8 @@ SEQ = [1,0]
 class KitchenInpaint(BaseInpainting):
     def __init__(self, inpainting_method={}, sequence=SEQ):
         self.reset()
-        if 'sequence_idx' in inpainting_method:
-            self.sequence = inpainting_method['sequence_idx']
+        if 'idx' in inpainting_method:
+            self.sequence = inpainting_method['idx']
         else:
             self.sequence = sequence
 
