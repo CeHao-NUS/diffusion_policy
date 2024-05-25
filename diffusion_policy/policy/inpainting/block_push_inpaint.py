@@ -106,7 +106,8 @@ class BlockPushInpainting(BaseInpainting):
 
         # adjust
         if self.stage in [0]:
-            self.constraint = 0.01
+            # self.constraint = 0.01
+            self.constraint = 1
 
         elif self.stage in [1]:
             # self.constraint = 0.001

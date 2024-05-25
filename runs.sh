@@ -1,11 +1,14 @@
 
 sequence=(0 1 2 3)
 
+# sequence=(4)
+
+# sequence=(0 1 2 3 4 5 6)
+
 
 out_dir="./files/eval_results/"
-run_times=1
-
-max_jobs=10
+run_times=2
+max_jobs=3
 
 
 # ================== push t==================
@@ -14,9 +17,9 @@ max_jobs=10
 for idx in "${sequence[@]}"; do
     for ((i=1; i<=run_times; i++)); do
         # uncon
-        python eval.py --checkpoint  ./files/pretrain_models/pusht/lowdim_diffusion_policy_transformer_epoch=0850-test_mean_score=0.967.ckpt \
-        --output_dir "./files/eval_results/pusht/uncon/${idx}" \
-        --index $idx &
+        # python eval.py --checkpoint  ./files/pretrain_models/pusht/lowdim_diffusion_policy_transformer_epoch=0850-test_mean_score=0.967.ckpt \
+        # --output_dir "./files/eval_results/pusht/uncon/${idx}" \
+        # --index $idx &
 
         # vanilla
         python eval.py --checkpoint  ./files/pretrain_models/pusht/lowdim_diffusion_policy_transformer_epoch=0850-test_mean_score=0.967.ckpt \
@@ -54,21 +57,21 @@ for idx in "${sequence[@]}"; do
     for ((i=1; i<=run_times; i++)); do
 
     # un cond
-    python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
-     --output_dir ./files/eval_results/pushblock/uncon/${idx} \
-     --index $idx &
+    # python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
+    #  --output_dir ./files/eval_results/pushblock/uncon/${idx} \
+    #  --index $idx &
 
     # vanilla
-    python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
-     --manual_cfg './files/train_yaml/pushblock/vanilla/block_push_diffusion_policy_transformer.yaml'\
-     --output_dir ./files/eval_results/pushblock/vanilla/${idx} \
-     --index $idx &
+    # python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
+    #  --manual_cfg './files/train_yaml/pushblock/vanilla/block_push_diffusion_policy_transformer.yaml'\
+    #  --output_dir ./files/eval_results/pushblock/vanilla/${idx} \
+    #  --index $idx &
 
     # inpaint
-    python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
-     --manual_cfg './files/train_yaml/pushblock/inpaint/block_push_diffusion_policy_transformer.yaml'\
-     --output_dir ./files/eval_results/pushblock/inpaint/${idx} \
-     --index $idx &
+    # python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
+    #  --manual_cfg './files/train_yaml/pushblock/inpaint/block_push_diffusion_policy_transformer.yaml'\
+    #  --output_dir ./files/eval_results/pushblock/inpaint/${idx} \
+    #  --index $idx &
 
     # goal
     python eval_classifier.py  --checkpoint ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
@@ -90,20 +93,20 @@ done
 
 # =================== kitchen ==================
 
-'''
+# '''
 for idx in "${sequence[@]}"; do
     for ((i=1; i<=run_times; i++)); do
 
     # un cond
-    python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-test_mean_score=0.574.ckpt \
-     --output_dir ./files/eval_results/kitchen/uncon/${idx} \
-     --index $idx &
+    # python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-test_mean_score=0.574.ckpt \
+    #  --output_dir ./files/eval_results/kitchen/uncon/${idx} \
+    #  --index $idx &
 
     # vanilla
-    python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-test_mean_score=0.574.ckpt \
-     --manual_cfg './files/train_yaml/kitchen/vanilla/kitchen_diffusion_policy_transformer.yaml' \
-     --output_dir ./files/eval_results/kitchen/vanilla/${idx} \
-     --index $idx &
+    # python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-test_mean_score=0.574.ckpt \
+    #  --manual_cfg './files/train_yaml/kitchen/vanilla/kitchen_diffusion_policy_transformer.yaml' \
+    #  --output_dir ./files/eval_results/kitchen/vanilla/${idx} \
+    #  --index $idx &
 
     # inpaint
     python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-test_mean_score=0.574.ckpt \
@@ -127,4 +130,6 @@ for idx in "${sequence[@]}"; do
 
     done
 done
-'''
+# '''
+
+echo "All done"

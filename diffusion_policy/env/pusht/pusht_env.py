@@ -111,9 +111,9 @@ class PushTEnv(gym.Env):
         state[0] += 50 * np.random.uniform(-1, 1)
         state[1] += 50 * np.random.uniform(-1, 1)
 
-        state[2] += 10 * np.random.uniform(-1, 1)
-        state[3] += 10 * np.random.uniform(-1, 1)
-        state[4] += 0.05 * np.pi/4 * np.random.uniform(-1, 1)
+        state[2] += 20 * np.random.uniform(-1, 1)
+        state[3] += 20 * np.random.uniform(-1, 1)
+        state[4] += 0.4 * np.pi/4 * np.random.uniform(-1, 1)
         # print('init state:', state)
         # print('goal pose:', self.goal_pose)
         # '''
