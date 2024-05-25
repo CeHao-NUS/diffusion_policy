@@ -144,7 +144,8 @@ class KitchenBase(KitchenTaskRelaxV1):
             # STORE['reward'] = np.array(STORE['reward'])
             # STORE['done'] = np.array(STORE['done'])
             # STORE['info'] = np.array(STORE['info'])
-            np.save('store.npy', STORE)
+            # np.save('store.npy', STORE)
+            pass
 
         if self.TERMINATE_ON_TASK_COMPLETE:
             done = not self.tasks_to_complete

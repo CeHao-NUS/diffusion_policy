@@ -89,7 +89,7 @@ policy:
   inpainting:
     inpainting_env: kitchen
     inpainting_method: 
-      idx: [0]
+      idx: 0
       vanilla: true
 pred_action_steps_only: false
 task:

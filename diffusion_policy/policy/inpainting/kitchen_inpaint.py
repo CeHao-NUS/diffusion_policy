@@ -1,4 +1,4 @@
-from diffusion_policy.policy.inpainting.base_inpainting import BaseInpainting, MSE_inequ_opt
+from diffusion_policy.policy.inpainting.base_inpainting import BaseInpainting, MSE_inequ_opt, inpaint_vanilla
 
 import numpy as np
 import torch
@@ -67,15 +67,32 @@ Thresholds = [
 
 ]
 
-SEQ = [1,0]
+lv1 = [5, 6]
+lv2 = []
+
+SEQ = [[6, 0], [6, 4], [4, 0], [4, 6]]
+'''
+Kettle -> burner [6, 0]
+Kettle -> hinge [6, 4]
+
+Hinge -> burner [4, 0]
+Hinge -> kettle [4, 6]
+
+'''
 
 class KitchenInpaint(BaseInpainting):
-    def __init__(self, inpainting_method={}, sequence=SEQ):
+    def __init__(self, inpainting_method={}, sequence=0):
         self.reset()
         if 'idx' in inpainting_method:
-            self.sequence = inpainting_method['idx']
+            self.sequence = SEQ[inpainting_method['idx']]
+            print('inpainting_method', inpainting_method)
         else:
-            self.sequence = sequence
+            self.sequence = SEQ[sequence]
+
+        if 'vanilla' in inpainting_method:
+            self.vanilla = inpainting_method['vanilla']
+        else:
+            self.vanilla = False
 
     def reset(self):
         self.stage = 0
@@ -112,7 +129,10 @@ class KitchenInpaint(BaseInpainting):
             mask, cond = self.mask, self.cond
             
             # apply inpainting
-            x_inpaint = MSE_inequ_opt(x, mask, cond, self.constraint)
+            if self.vanilla:
+                x_inpaint = inpaint_vanilla(x, mask, cond, self.constraint)
+            else:
+                x_inpaint = MSE_inequ_opt(x, mask, cond, self.constraint)
 
             # convert numpy to torch
             x_inpaint = torch.tensor(x_inpaint, dtype=torch.float32).to(x_ori.device)

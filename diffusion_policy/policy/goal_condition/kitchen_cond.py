@@ -1,5 +1,5 @@
 
-from diffusion_policy.policy.inpainting.kitchen_inpaint import GAOL_QPOSE, Thresholds, ALL_TASKS_np
+from diffusion_policy.policy.inpainting.kitchen_inpaint import GAOL_QPOSE, Thresholds, ALL_TASKS_np, SEQ
 
 '''
 ALL_TASKS = [
@@ -17,21 +17,34 @@ ALL_TASKS = [
 import numpy as np 
 import torch
 
+
+# stages: 0: condition, approaching, 1: finish task, 2: idle
+
 class KitchenCondition:
 
     def __init__(self, cond_method={}, sequence=[0,6,4,2]):
+        if 'idx' in cond_method:
+            self.sequence = SEQ[cond_method['idx']]
+            print('cond_method', cond_method)
+        else:
+            self.sequence = SEQ[sequence]
+
+        
+
         self.finish_setup = False
-        self.sequence = sequence
+        
         self._use_condition = True
         self.stage = 0
 
         self.reset()
 
     def reset(self):
-        self.idle = 0
+        self.idle = -1
         self.STAGE_MACHINE = 0
 
     def pre_process_condition(self, action_norm, obs, cond):
+        if self.stage >= len(self.sequence):
+            return None
         target_joint_raw = torch.tensor(GAOL_QPOSE[self.sequence[self.stage]], dtype=torch.float32).to(cond.device)
         self.target_joint = action_norm(target_joint_raw)
         self.finish_setup = True
@@ -61,8 +74,13 @@ class KitchenCondition:
             if ALL_TASKS_np[self.sequence][self.stage] in complete_tasks:
                 print('1 ============ complete task', ALL_TASKS_np[self.sequence][self.stage])
                 self.stage += 1
-                self.STAGE_MACHINE = 0 # use condition again
-                self._use_condition = True
+                self.STAGE_MACHINE = 2 # idle
+                
+                if self.idle <= 0:
+                    print('2 ============ idle', self.idle)
+                    self.idle += 1
+                else:
+                    self._use_condition = True
 
                 if self.stage < len(self.sequence) - 1: 
                     print('stage updated to', self.stage, ALL_TASKS_np[self.sequence][self.stage])
@@ -78,9 +96,9 @@ class KitchenCondition:
         if distance < Thresholds[self.sequence[self.stage]]:
             print('0 ============ finish goal reaching', ALL_TASKS_np[self.sequence][self.stage])
             self.STAGE_MACHINE = 1 # to finish task
+            self.idle = -1
             self._use_condition = False
     
-
 
     def use_condition(self):
         return self._use_condition

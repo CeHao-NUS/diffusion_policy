@@ -52,13 +52,14 @@ class KitchenLowdimRunner(BaseLowdimRunner):
         self.classifier = classifier
 
         # manual start
-        # n_train_vis = 100
+        n_train_vis = 100
         # n_test_vis = 100
 
-        # n_train = 1
-        # n_test = 0
-        # train_start_seed = 100
-        # max_steps = 150
+        n_train = 1
+        n_test = 0
+
+        np.random.seed()
+        train_start_seed = np.random.randint(0, 10000)
 
         render_hw = (240*4, 360*4)
 
@@ -125,7 +126,7 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                 if enable_render:
                     filename = pathlib.Path(output_dir).joinpath(
                         # 'media', wv.util.generate_id() + ".mp4")
-                        'media', str(i) + ".mp4")
+                        'media', str(i)+ '_' + wv.util.generate_id() + ".mp4")
                     filename.parent.mkdir(parents=False, exist_ok=True)
                     filename = str(filename)
                     env.env.file_path = filename
@@ -277,6 +278,9 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                         else:
                             action_dict = policy.predict_action(obs_dict)
 
+                    else:
+                        action_dict = policy.predict_action(obs_dict)
+
                 # device_transfer
                 np_action_dict = dict_apply(action_dict,
                     lambda x: x.detach().to('cpu').numpy())
@@ -365,5 +369,8 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                 p_n = np.mean(n_completed >= n)
                 name = prefix + f'p_{n}'
                 log_data[name] = p_n
+
+        # completed tasks
+        log_data['completed_tasks'] = list(last_info[0]['completed_tasks'])
 
         return log_data
