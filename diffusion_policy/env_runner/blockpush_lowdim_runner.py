@@ -43,16 +43,17 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
         super().__init__(output_dir)
 
         self.inpainting = inpainting
-        self.classifer = classifier
+        self.classifier = classifier
 
         # manual start
-        # n_train_vis = 100
+        n_train_vis = 100
         # n_test_vis = 100
 
-        # n_train = 1
-        # n_test = 0
-        # train_start_seed = 4
+        n_train = 1
+        n_test = 0
 
+        np.random.seed()
+        train_start_seed = np.random.randint(0, 10000)
 
         if n_envs is None:
             n_envs = n_train + n_test
@@ -60,7 +61,7 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
         task_fps = 10
         steps_per_render = max(10 // fps, 1)
 
-        # max_steps = 100 # adjust
+        max_steps = 150 # adjust
 
         def env_fn():
             return MultiStepWrapper(
@@ -107,7 +108,7 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
                 if enable_render:
                     filename = pathlib.Path(output_dir).joinpath(
                         # 'media1', wv.util.generate_id() + ".mp4")
-                        'media1', str(i) + ".mp4")
+                        'media', str(i)+ '_' + wv.util.generate_id() + ".mp4")
                     filename.parent.mkdir(parents=False, exist_ok=True)
                     filename = str(filename)
                     env.env.file_path = filename
@@ -227,13 +228,16 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
                 # run policy
                 with torch.no_grad():
                     # ============= choose which policy to execute =============
-                    if self.classifer is not None and policy_cond is not None:
+                    if self.classifier is not None and policy_cond is not None:
                         use_condition = policy_cond.external_condition.use_condition()
 
                         if use_condition:
                             action_dict = policy_cond.predict_action(obs_dict)
                         else:
                             action_dict = policy.predict_action(obs_dict)
+
+                    else:
+                        action_dict = policy.predict_action(obs_dict)
 
                 # device_transfer
                 np_action_dict = dict_apply(action_dict,
@@ -296,10 +300,11 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
             total_p2[prefix].append(p2)
             log_data[prefix+f'sim_max_reward_{seed}'] = total_reward
 
-            # aggregate event counts
+            # aggregate event counts # this is not good
             prefix_counts[prefix] += 1
             for key, value in last_info[i].items():
-                delta_count = 1 if value > 0 else 0
+                # delta_count = 1 if value > 0 else 0
+                delta_count = value
                 prefix_event_counts[prefix][key] += delta_count
 
             # visualize sim

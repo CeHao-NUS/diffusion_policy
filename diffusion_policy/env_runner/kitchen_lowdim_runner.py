@@ -49,7 +49,7 @@ class KitchenLowdimRunner(BaseLowdimRunner):
         super().__init__(output_dir)
 
         self.inpainting = inpainting
-        self.classifer = classifier
+        self.classifier = classifier
 
         # manual start
         # n_train_vis = 100
@@ -269,7 +269,7 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                 # run policy
                 with torch.no_grad():
                      # ============= choose which policy to execute =============
-                    if self.classifer is not None and policy_cond is not None:
+                    if self.classifier is not None and policy_cond is not None:
                         use_condition = policy_cond.external_condition.use_condition()
 
                         if use_condition:
@@ -302,7 +302,7 @@ class KitchenLowdimRunner(BaseLowdimRunner):
                 if self.inpainting is not None:
                     policy.inpainting.update_task_finish(info[0])
 
-                if self.classifer is not None:
+                if self.classifier is not None:
                     policy_cond.external_condition.update_task_finish(info[0])
 
                 # update pbar

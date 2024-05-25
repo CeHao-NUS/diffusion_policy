@@ -50,7 +50,7 @@ def main(checkpoint, output_dir, device, manual_cfg, index):
     # check inpainting or cond
     if index is not None:
         if 'inpainting' in cfg.policy:
-            cfg.policy.inpainting.inpainting_method.idx = index
+            cfg.policy.inpainting.inpainting_method.idx = int(index)
 
 
     workspace = cls(cfg, output_dir=output_dir)
@@ -80,17 +80,17 @@ def main(checkpoint, output_dir, device, manual_cfg, index):
         else:
             json_log[key] = value
 
-    out_path = os.path.join(output_dir, 'eval_log.json')
-    json.dump(json_log, open(out_path, 'w'), indent=2, sort_keys=True)
+    # out_path = os.path.join(output_dir, 'eval_log.json')
+    # json.dump(json_log, open(out_path, 'w'), indent=2, sort_keys=True)
 
 
-    # save score to txt
-    score = runner_log['train/mean_score']
     import wandb.sdk.data_types.video as wv
-    file_name = 'score' + wv.util.generate_id() + '.txt'
+    file_name = 'eval_log' + wv.util.generate_id() + '.json'
+    out_path_i = os.path.join(output_dir, file_name)
 
-    with open(os.path.join(output_dir, file_name), 'w') as f:
-        f.write(str(score))
+    json.dump(json_log, open(out_path_i, 'w'), indent=2, sort_keys=True)
+
+    
 
 
     

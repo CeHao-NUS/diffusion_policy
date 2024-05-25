@@ -12,18 +12,22 @@ import torch
 '''
 
 import numpy as np
+from diffusion_policy.policy.inpainting.block_push_inpaint import SEQ, mapping
 
-
-SEQ = [[0, 2, 1, 3], [0, 3, 1, 2], [1, 2, 0, 3], [1, 3, 0, 2] ]
-mapping = {0: 'b0', 1: 'b1', 2: 't0', 3: 't1'}
+# SEQ = [[0, 2, 1, 3], [0, 3, 1, 2], [1, 2, 0, 3], [1, 3, 0, 2] ]
+# mapping = {0: 'b0', 1: 'b1', 2: 't0', 3: 't1'}
 
 
 class BlockPushCondition:
-    def __init__(self, cond_method={}):
+    def __init__(self, cond_method={},  sequence=0):
         self.finish_setup = False
-        self.sequence = 0
+        if 'idx' in cond_method:
+            self.sequence = cond_method['idx']
+        else:
+            self.sequence = sequence
 
         self.stage = 0
+        self._use_condition = True
 
     def pre_process_condition(self, action_norm, obs, cond):
         # obs is normalized
@@ -61,18 +65,18 @@ class BlockPushCondition:
 
         new_stage = False
         if self.stage in [0, 2]:
-            distance = np.linalg.norm(diff_pose)
+            distance = torch.linalg.norm(diff_pose)
             if distance < 0.055:
                 print("============ update stage ============", self.stage)
                 print('ee pose', ee_pose)
                 print('block pose', mapping[SEQ[self.sequence][self.stage]], next_pose)
                 print('distance', distance)
                 new_stage = True
-                self._use_condition = True
+                self._use_condition = False
 
         elif self.stage in [1, 3]:
             source_pose = poses[SEQ[self.sequence][self.stage-1]]
-            distance = np.linalg.norm(next_pose - source_pose )
+            distance = torch.linalg.norm(next_pose - source_pose )
         
             if distance < 0.055:
                 print("============ update stage ============", self.stage)
@@ -80,7 +84,7 @@ class BlockPushCondition:
                 print('target pose', mapping[SEQ[self.sequence][self.stage]], next_pose)
                 print('distance', distance)
                 new_stage = True
-                self._use_condition = False
+                self._use_condition = True
 
 
         if new_stage:
@@ -108,7 +112,9 @@ class BlockPushCondition:
 
         poses = [block0_translation, block1_translation, 
                  target0_translation, target1_translation,
-                 effector_translation, effector_target_translation]
+                 effector_translation, effector_target_translation, 
+                 (block0_translation + block1_translation) / 2,
+                 (block0_translation + block1_translation + target0_translation + target1_translation) / 4]
                  
         return poses
     

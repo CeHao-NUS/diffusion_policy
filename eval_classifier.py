@@ -95,16 +95,15 @@ def main(checkpoint, checkpoint_cond, output_dir, device, manual_cfg, index):
             json_log[key] = value._path
         else:
             json_log[key] = value
-    out_path = os.path.join(output_dir, 'eval_log.json')
-    json.dump(json_log, open(out_path, 'w'), indent=2, sort_keys=True)
+    # out_path = os.path.join(output_dir, 'eval_log.json')
+    # json.dump(json_log, open(out_path, 'w'), indent=2, sort_keys=True)
 
 
-    score = runner_log['train/mean_score']
     import wandb.sdk.data_types.video as wv
-    file_name = 'score' + wv.util.generate_id() + '.txt'
+    file_name = 'eval_log' + wv.util.generate_id() + '.json'
+    out_path_i = os.path.join(output_dir, file_name)
 
-    with open(os.path.join(output_dir, file_name), 'w') as f:
-        f.write(str(score))
+    json.dump(json_log, open(out_path_i, 'w'), indent=2, sort_keys=True)
 
 if __name__ == '__main__':
     main()

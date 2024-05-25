@@ -119,7 +119,7 @@ task:
     past_action: false
     test_start_seed: 100000
     train_start_seed: 0
-    classifer: true # set flag
+    classifier: true # set flag
   keypoint_dim: 2
   name: blockpush_lowdim_seed
   obs_dim: 16

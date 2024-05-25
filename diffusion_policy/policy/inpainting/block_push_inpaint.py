@@ -1,7 +1,7 @@
 
 
 
-from diffusion_policy.policy.inpainting.base_inpainting import BaseInpainting, MSE_inequ_opt
+from diffusion_policy.policy.inpainting.base_inpainting import BaseInpainting, MSE_inequ_opt, inpaint_vanilla
 
 import numpy as np
 import torch
@@ -18,9 +18,12 @@ import torch
 '''
 
 
+# correct
+# SEQ = [[0, 2, 1, 3], [0, 3, 1, 2], [1, 2, 0, 3], [1, 3, 0, 2] ]
+mapping = {0: 'b0', 1: 'b1', 2: 't0', 3: 't1', 4: 'ee', 5: 'ee_target', 6: 'block_center', 7: 'all_center'}
 
-SEQ = [[0, 2, 1, 3], [0, 3, 1, 2], [1, 2, 0, 3], [1, 3, 0, 2] ]
-mapping = {0: 'b0', 1: 'b1', 2: 't0', 3: 't1'}
+# changed
+SEQ = [[0, 2, 1, 3], [1, 2, 0, 3], [6, 2, 6, 3], [7, 3, 7, 2]]
 
 class BlockPushInpainting(BaseInpainting):
 
@@ -30,8 +33,14 @@ class BlockPushInpainting(BaseInpainting):
 
         if 'idx' in inpainting_method:
             self.sequence = inpainting_method['idx']
+            print('inpainting method:', inpainting_method)
         else:
             self.sequence = sequence
+
+        if 'vanilla' in inpainting_method:
+            self.vanilla = inpainting_method['vanilla']
+        else:
+            self.vanilla = False
         
 
     def reset(self):
@@ -46,7 +55,10 @@ class BlockPushInpainting(BaseInpainting):
             mask, cond = self.mask, self.cond
             
             # apply inpainting
-            x_inpaint = MSE_inequ_opt(x, mask, cond, self.constraint)
+            if self.vanilla:
+                x_inpaint = inpaint_vanilla(x, mask, cond, self.constraint)
+            else:
+                x_inpaint = MSE_inequ_opt(x, mask, cond, self.constraint)
 
             # convert numpy to torch
             x_inpaint = torch.tensor(x_inpaint, dtype=torch.float32).to(x_ori.device)
@@ -71,7 +83,8 @@ class BlockPushInpainting(BaseInpainting):
         target0_translation = obs[:, -1, 10:12]
         target1_translation = obs[:, -1, 13:15]
 
-        poses = [block0_translation, block1_translation, target0_translation, target1_translation]
+        poses = [block0_translation, block1_translation, target0_translation, target1_translation, effector_translation, effector_target_translation,
+                 (block0_translation +  block1_translation) / 2, (block0_translation + block1_translation + target0_translation + target1_translation) / 4]
         ee_pose = effector_translation
         next_pose = poses[SEQ[self.sequence][self.stage]]
 
@@ -96,7 +109,8 @@ class BlockPushInpainting(BaseInpainting):
             self.constraint = 0.01
 
         elif self.stage in [1]:
-            self.constraint = 0.001
+            # self.constraint = 0.001
+            self.constraint = 1e-6
 
         elif self.stage in [2, 3]:
             # self.constraint = 0.005
