@@ -61,7 +61,7 @@ class BlockPushLowdimRunner(BaseLowdimRunner):
         task_fps = 10
         steps_per_render = max(10 // fps, 1)
 
-        max_steps = 150 # adjust
+        # max_steps = 150 # adjust
 
         def env_fn():
             return MultiStepWrapper(

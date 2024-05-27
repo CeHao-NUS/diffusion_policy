@@ -372,5 +372,6 @@ class KitchenLowdimRunner(BaseLowdimRunner):
 
         # completed tasks
         log_data['completed_tasks'] = list(last_info[0]['completed_tasks'])
+        log_data['task_done'] = list(last_info[0]['task_done'])
 
         return log_data

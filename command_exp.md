@@ -34,3 +34,15 @@ python eval_classifier.py --checkpoint ./files/pretrain_models/pusht/lowdim_diff
             --output_dir ./files/eval_results/pusht/goal_cond/5 \
             --index 3
 
+
+
+#
+'''
+
+
+'''
+
+python eval.py --checkpoint  ./files/pretrain_models/kitchen/transformer_3000-test_mean_score=0.574.ckpt \
+     --manual_cfg './files/train_yaml/kitchen/inpaint/kitchen_diffusion_policy_transformer.yaml' \
+     --output_dir ./files/eval_results/kitchen/inpaint/8 \
+     --index 8 

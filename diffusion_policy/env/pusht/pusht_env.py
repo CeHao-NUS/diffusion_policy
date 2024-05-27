@@ -190,6 +190,17 @@ class PushTEnv(gym.Env):
                 markerSize=marker_size, thickness=thickness)
         
         return img
+    '''
+            if self.render_action:
+            if self.render_action and (self.latest_action is not None):
+                action = np.array(self.latest_action)
+                coord = (action / 512 * 96).astype(np.int32)
+                marker_size = int(8/96*self.render_size)
+                thickness = int(1/96*self.render_size)
+                cv2.drawMarker(img, coord,
+                    color=(255,0,0), markerType=cv2.MARKER_CROSS,
+                    markerSize=marker_size, thickness=thickness)
+    '''
 
     def teleop_agent(self):
         TeleopAgent = collections.namedtuple('TeleopAgent', ['act'])
@@ -271,7 +282,7 @@ class PushTEnv(gym.Env):
         if self.render_action:
             if self.render_action and (self.latest_action is not None):
                 action = np.array(self.latest_action)
-                coord = (action / 512 * 96).astype(np.int32)
+                coord = (action / 512 ).astype(np.int32)
                 marker_size = int(8/96*self.render_size)
                 thickness = int(1/96*self.render_size)
                 cv2.drawMarker(img, coord,

@@ -66,6 +66,7 @@ class KitchenBase(KitchenTaskRelaxV1):
         **kwargs
     ):
         self.tasks_to_complete = list(self.TASK_ELEMENTS)
+        self.task_done = list()
         self.goal_masking = True
         super(KitchenBase, self).__init__(use_abs_action=use_abs_action, **kwargs)
 
@@ -117,11 +118,12 @@ class KitchenBase(KitchenTaskRelaxV1):
             if condition:  # element == self.tasks_to_complete[0]:
                 print("Task {} completed!".format(element))
                 completions.append(element)
+                self.task_done.append(element)
             all_completed_so_far = all_completed_so_far and complete
         if self.REMOVE_TASKS_WHEN_COMPLETE:
             [self.tasks_to_complete.remove(element) for element in completions]
         bonus = float(len(completions))
-        reward_dict["bonus"] = bonus
+        reward_dict["bonus"] = completions
         reward_dict["r_total"] = bonus
         score = bonus
         return reward_dict, score
@@ -139,13 +141,14 @@ class KitchenBase(KitchenTaskRelaxV1):
         STORE['counter'].append(count)
 
         if done or reward>0:
+            a= 1
             # STORE['obs'] = np.array(STORE['obs'])
             # STORE['action'] = np.array(STORE['action'])
             # STORE['reward'] = np.array(STORE['reward'])
             # STORE['done'] = np.array(STORE['done'])
             # STORE['info'] = np.array(STORE['info'])
             # np.save('store.npy', STORE)
-            pass
+            # pass
 
         if self.TERMINATE_ON_TASK_COMPLETE:
             done = not self.tasks_to_complete
@@ -161,6 +164,9 @@ class KitchenBase(KitchenTaskRelaxV1):
         env_info["completed_tasks"] = set(self.TASK_ELEMENTS) - set(
             self.tasks_to_complete
         )
+
+        env_info["task_done"] = self.task_done
+        
         return obs, reward, done, env_info
 
     def get_goal(self):
