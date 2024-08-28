@@ -1,13 +1,13 @@
 
 # sequence=(0 1 2 3)
 
-# sequence=(0 1)
+sequence=(0 1)
 
 # sequence=(0 1 2 3 4 5 6)
 
 
 # out_dir="./files/eval_results/"
-# run_times=3
+run_times=3
 
 
 # ================== push t==================
@@ -63,10 +63,10 @@ for idx in "${sequence[@]}"; do
     #  --index $idx &
 
     # vanilla
-    python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
-     --manual_cfg './files/train_yaml/pushblock/vanilla/block_push_diffusion_policy_transformer.yaml'\
-     --output_dir ./files/eval_results/pushblock/vanilla/${idx} \
-     --index $idx &
+    # python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
+    #  --manual_cfg './files/train_yaml/pushblock/vanilla/block_push_diffusion_policy_transformer.yaml'\
+    #  --output_dir ./files/eval_results/pushblock/vanilla/${idx} \
+    #  --index $idx &
 
     # inpaint
     python eval.py --checkpoint  ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
@@ -75,11 +75,11 @@ for idx in "${sequence[@]}"; do
      --index $idx &
 
     # goal
-    python eval_classifier.py  --checkpoint ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
-     --checkpoint_cond  ./files/train_results/blockpush_cond_ee/checkpoints/latest.ckpt \
-     --manual_cfg ./files/train_yaml/pushblock/goal/block_pushing_diffusion_policy_transformer.yaml \
-     --output_dir ./files/eval_results/pushblock/goal_cond/${idx} \
-     --index $idx &
+    # python eval_classifier.py  --checkpoint ./files/pretrain_models/block_pushing/transformer_epoch=7550-test_mean_score=1.000.ckpt \
+    #  --checkpoint_cond  ./files/train_results/blockpush_cond_ee/checkpoints/latest.ckpt \
+    #  --manual_cfg ./files/train_yaml/pushblock/goal/block_pushing_diffusion_policy_transformer.yaml \
+    #  --output_dir ./files/eval_results/pushblock/goal_cond/${idx} \
+    #  --index $idx &
 
      (( count++ ))
         if [[ $count -ge $max_jobs ]]; then
